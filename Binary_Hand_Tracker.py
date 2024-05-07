@@ -24,6 +24,18 @@ while cap.isOpened():
         print("Failed to read from camera.")
         break
 
+    # Get the dimensions of the frame
+    height, width, _ = frame.shape
+
+    # Define the box dimensions
+    box_left = width // 4
+    box_top = height // 4
+    box_right = 3 * width // 4
+    box_bottom = 3 * height // 4
+
+    # Draw a box in the middle of the frame
+    cv2.rectangle(frame, (box_left, box_top), (box_right, box_bottom), (255, 0, 0), 2)
+
     # Convert the image to RGB
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -33,28 +45,33 @@ while cap.isOpened():
     # Draw hand landmarks and analyze finger angles
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
-            # Draw hand landmarks
-            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
-            # Get landmark positions
+            # Get the landmark positions
             landmarks = []
             for lm in hand_landmarks.landmark:
-                landmarks.append((lm.x, lm.y, lm.z))
+                x = int(lm.x * width)
+                y = int(lm.y * height)
+                landmarks.append((x, y))
 
-            # Calculate finger bending status based on x and y coordinates
-            thumb_bent = landmarks[4][0] < landmarks[3][0]
-            index_bent = landmarks[8][1] < landmarks[6][1]
-            middle_bent = landmarks[12][1] < landmarks[10][1]
-            ring_bent = landmarks[16][1] < landmarks[14][1]
-            pinky_bent = landmarks[20][1] < landmarks[18][1]
+            # Check if the hand is within the box
+            hand_x, hand_y = landmarks[0]  # Using the position of the wrist
+            if box_left < hand_x < box_right and box_top < hand_y < box_bottom:
+                # Draw hand landmarks
+                mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-            # Display finger status on the image
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(frame, f'Thumb: {"Bent" if thumb_bent else "Straight"}', (10, 30), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(frame, f'Index: {"Straight" if index_bent else "Bent"}', (10, 60), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(frame, f'Middle: {"Straight" if middle_bent else "Bent"}', (10, 90), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(frame, f'Ring: {"Straight" if ring_bent else "Bent"}', (10, 120), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(frame, f'Pinky: {"Straight" if pinky_bent else "Bent"}', (10, 150), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                # Calculate finger bending status based on x and y coordinates
+                thumb_bent = landmarks[4][0] < landmarks[3][0]
+                index_bent = landmarks[8][1] < landmarks[6][1]
+                middle_bent = landmarks[12][1] < landmarks[10][1]
+                ring_bent = landmarks[16][1] < landmarks[14][1]
+                pinky_bent = landmarks[20][1] < landmarks[18][1]
+
+                # Display finger status on the image
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(frame, f'Thumb: {"Bent" if thumb_bent else "Straight"}', (10, 30), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Index: {"Straight" if index_bent else "Bent"}', (10, 60), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Middle: {"Straight" if middle_bent else "Bent"}', (10, 90), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Ring: {"Straight" if ring_bent else "Bent"}', (10, 120), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Pinky: {"Straight" if pinky_bent else "Bent"}', (10, 150), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
 
     # Display the resulting frame
     cv2.imshow('Hand Tracking', frame)
