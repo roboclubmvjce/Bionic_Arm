@@ -1,12 +1,38 @@
 import cv2
 import mediapipe as mp
 import math
+import serial
+import serial.tools.list_ports
 
 # Function to calculate angle between three points (p1, p2, p3)
 def calculate_angle(p1, p2, p3):
     angle_rad = math.atan2(p3[1] - p2[1], p3[0] - p2[0]) - math.atan2(p1[1] - p2[1], p1[0] - p2[0])
     angle_deg = math.degrees(angle_rad)
     return angle_deg + 360 if angle_deg < 0 else angle_deg
+
+# Function to update hand state array
+def update_hand_state(thumb_bent, index_bent, middle_bent, ring_bent, pinky_bent):
+    hand_state = [int(thumb_bent), int(index_bent), int(middle_bent), int(ring_bent), int(pinky_bent)]
+    return hand_state
+
+# Set up serial communication
+ports = serial.tools.list_ports.comports()
+serial_inst = serial.Serial()
+
+ports_list = []
+for port in ports:
+    ports_list.append(str(port))
+    print(str(port))
+
+val = input('Select Port: COM')
+for i in range(len(ports_list)):
+    if ports_list[i].startswith(f'COM{val}'):
+        port_var = f'COM{val}'
+        print(port_var)
+
+serial_inst.baudrate = 9600
+serial_inst.port = port_var
+serial_inst.open()
 
 # Initialize MediaPipe hands module
 mp_hands = mp.solutions.hands
@@ -65,21 +91,32 @@ while cap.isOpened():
                 ring_bent = landmarks[16][1] < landmarks[14][1]
                 pinky_bent = landmarks[20][1] < landmarks[18][1]
 
+                # Update hand state array
+                hand_state = update_hand_state(thumb_bent, index_bent, middle_bent, ring_bent, pinky_bent)
+
+                # Send hand state to Arduino
+                hand_state_str = ''.join(map(str, hand_state)) + '\n'
+                serial_inst.write(hand_state_str.encode('utf-8'))
+
                 # Display finger status on the image
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(frame, f'Thumb: {"Bent" if thumb_bent else "Straight"}', (10, 30), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Index: {"Straight" if index_bent else "Bent"}', (10, 60), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Middle: {"Straight" if middle_bent else "Bent"}', (10, 90), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Ring: {"Straight" if ring_bent else "Bent"}', (10, 120), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Pinky: {"Straight" if pinky_bent else "Bent"}', (10, 150), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Index: {"Bent" if index_bent else "Straight"}', (10, 60), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Middle: {"Bent" if middle_bent else "Straight"}', (10, 90), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Ring: {"Bent" if ring_bent else "Straight"}', (10, 120), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Pinky: {"Bent" if pinky_bent else "Straight"}', (10, 150), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+
+                # Display the hand state array
+                cv2.putText(frame, f'Hand State: {hand_state}', (10, 180), font, 0.7, (0, 255, 255), 2, cv2.LINE_AA)
 
     # Display the resulting frame
     cv2.imshow('Hand Tracking', frame)
 
-    # Exit when 'q' is pressed
+    # Exit when 'ESC' is pressed
     if cv2.waitKey(5) & 0xFF == 27:
         break
 
 # Release resources
 cap.release()
 cv2.destroyAllWindows()
+serial_inst.close()
