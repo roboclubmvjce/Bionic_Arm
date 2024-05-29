@@ -1,14 +1,18 @@
 #include <Servo.h>
-
+//index-c1-7-3
+//middle-c0-8-10
+//ring-d5-11-5
+//small-d6-10-11
+//thumb-d4-12-9
 // Create servo objects
 Servo servo1, servo2, servo3, servo4, servo5;
 
 // Define servo pins
-const int servoPin1 = 3;
-const int servoPin2 = 5;
-const int servoPin3 = 6;
-const int servoPin4 = 9;
-const int servoPin5 = 10;
+const int servoPin1 = 9;
+const int servoPin2 = 3;
+const int servoPin3 = 10;
+const int servoPin4 = 5;
+const int servoPin5 = 11;
 
 void setup() {
   // Attach servos to pins
@@ -54,8 +58,8 @@ void loop() {
 
 void updateServo(Servo &servo, int state) {
   if (state == 1) {
-    servo.write(0);  // Bent position (0 degrees)
+    servo.write(100);  // Bent position (0 degrees)
   } else {
-    servo.write(90); // Straight position (90 degrees)
+    servo.write(0); // Straight position (90 degrees)
   }
 }

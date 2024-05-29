@@ -85,7 +85,7 @@ while cap.isOpened():
                 mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
                 # Calculate finger bending status based on x and y coordinates
-                thumb_bent = landmarks[4][0] < landmarks[3][0]
+                thumb_bent = landmarks[4][0] >= landmarks[3][0]
                 index_bent = landmarks[8][1] < landmarks[6][1]
                 middle_bent = landmarks[12][1] < landmarks[10][1]
                 ring_bent = landmarks[16][1] < landmarks[14][1]
@@ -100,11 +100,11 @@ while cap.isOpened():
 
                 # Display finger status on the image
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                cv2.putText(frame, f'Thumb: {"Bent" if thumb_bent else "Straight"}', (10, 30), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Index: {"Bent" if index_bent else "Straight"}', (10, 60), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Middle: {"Bent" if middle_bent else "Straight"}', (10, 90), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Ring: {"Bent" if ring_bent else "Straight"}', (10, 120), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
-                cv2.putText(frame, f'Pinky: {"Bent" if pinky_bent else "Straight"}', (10, 150), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Thumb: {"Straight" if thumb_bent else "Bent"}', (10, 30), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Index: {"Straight" if index_bent else "Bent"}', (10, 60), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Middle: {"Straight" if middle_bent else "Bent"}', (10, 90), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Ring: {"Straight" if ring_bent else "Bent"}', (10, 120), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'Pinky: {"Straight" if pinky_bent else "Bent"}', (10, 150), font, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
 
                 # Display the hand state array
                 cv2.putText(frame, f'Hand State: {hand_state}', (10, 180), font, 0.7, (0, 255, 255), 2, cv2.LINE_AA)
