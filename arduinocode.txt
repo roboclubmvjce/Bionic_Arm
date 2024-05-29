@@ -1,0 +1,61 @@
+#include <Servo.h>
+
+// Create servo objects
+Servo servo1, servo2, servo3, servo4, servo5;
+
+// Define servo pins
+const int servoPin1 = 3;
+const int servoPin2 = 5;
+const int servoPin3 = 6;
+const int servoPin4 = 9;
+const int servoPin5 = 10;
+
+void setup() {
+  // Attach servos to pins
+  servo1.attach(servoPin1);
+  servo2.attach(servoPin2);
+  servo3.attach(servoPin3);
+  servo4.attach(servoPin4);
+  servo5.attach(servoPin5);
+  
+  // Begin serial communication at 9600 baud rate
+  Serial.begin(9600);
+}
+
+void loop() {
+  if (Serial.available()) {
+    String handState = Serial.readStringUntil('\n');
+
+    if (handState.length() == 5) {
+      // Parse the hand state
+      int thumb = handState[0] - '0';
+      int index = handState[1] - '0';
+      int middle = handState[2] - '0';
+      int ring = handState[3] - '0';
+      int pinky = handState[4] - '0';
+
+      // Print the hand state
+      Serial.print("Hand State: ");
+      Serial.print(thumb);
+      Serial.print(index);
+      Serial.print(middle);
+      Serial.print(ring);
+      Serial.println(pinky);
+
+      // Control the servos based on the hand state
+      updateServo(servo1, thumb);
+      updateServo(servo2, index);
+      updateServo(servo3, middle);
+      updateServo(servo4, ring);
+      updateServo(servo5, pinky);
+    }
+  }
+}
+
+void updateServo(Servo &servo, int state) {
+  if (state == 1) {
+    servo.write(0);  // Bent position (0 degrees)
+  } else {
+    servo.write(90); // Straight position (90 degrees)
+  }
+}
