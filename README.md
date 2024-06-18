@@ -7,7 +7,7 @@ The project aims to develop a real-time hand gesture recognition system that det
 
 ## Instructions
 1. Before running the script ,install the required libraries through by running the following commands in the terminal :
-->pip install opencv-python
+->pip install opencv-python<br>
 ->pip install mediapipe
 ->pip install Pyserial
 
