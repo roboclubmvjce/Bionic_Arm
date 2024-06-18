@@ -6,10 +6,10 @@ The project aims to develop a real-time hand gesture recognition system that det
 ![Reference Image 1](Arm1.jpg)
 
 ## Instructions
-1. Before running the script ,install the required libraries through by running the following commands in the terminal :
+1. Before running the script ,install the required libraries through by running the following commands in the terminal :<br>
 ->pip install opencv-python<br>
-->pip install mediapipe
-->pip install Pyserial
+->pip install mediapipe<br>
+->pip install pyserial
 
 2. Create a new python script and copy the python code into it . using the GitHub repository link :https://github.com/roboclubmvjce/Bionic_Arm/raw/main/Degree_Hand_Tracker.py
 
